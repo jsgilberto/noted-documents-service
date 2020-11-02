@@ -6,10 +6,10 @@ check_timeout = os.getenv("POSTGRES_CHECK_TIMEOUT", 30)
 check_interval = os.getenv("POSTGRES_CHECK_INTERVAL", 1)
 interval_unit = "second" if check_interval == 1 else "seconds"
 config = {
-    "dbname": os.getenv("POSTGRES_DB", "postgres"),
-    "user": os.getenv("POSTGRES_USER", "postgres"),
+    "dbname": os.getenv("POSTGRES_DB", "noted_documents_db"),
+    "user": os.getenv("POSTGRES_USER", "noted_documents_admin"),
     "password": os.getenv("POSTGRES_PASSWORD", ""),
-    "host": os.getenv("DATABASE_URL", "documents_db")
+    "host": os.getenv("POSTGRES_HOSTNAME", "documents_db")
 }
 
 start_time = time()
