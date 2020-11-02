@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  documents_db:
+    image: postgres:11.6
+    env_file: 
+      - db.env
+    networks:
+      - noted-resource-manager_default
+  documents:
+    restart: always
+    environment:
+      - DJANGO_SECRET_KEY=local
+    env_file: 
+      - db.env
+    image: documents
+    build: ./
+    command: >
+      bash -c "python wait_for_postgres.py &&
+               python ./manage.py makemigrations &&
+               python ./manage.py migrate &&
+               python ./manage.py runserver 0.0.0.0:8200"
+    volumes:
+      - ./:/code
+    ports:
+      - "8200:8200"
+    depends_on:
+      - documents_db
+    networks:
+      - noted-resource-manager_default
+  documentation:
+    restart: always
+    build: ./
+    command: "mkdocs serve"
+    volumes:
+      - ./:/code
+    ports:
+      - "8003:8003"
+
+networks:
+  noted-resource-manager_default:
+    external: true
