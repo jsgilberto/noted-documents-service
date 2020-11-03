@@ -24,7 +24,7 @@ class Common(Configuration):
         'corsheaders',               # django-cors-headers app
 
         # Your apps
-        # 'noted_documents.users',
+        'noted_documents.documents',
 
     )
 
