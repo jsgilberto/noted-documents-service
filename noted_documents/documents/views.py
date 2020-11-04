@@ -7,18 +7,6 @@ from .serializers import DocumentSerializer
 from .models import Document
 
 
-""" CRUD Operations on Documents
-
-    Create Document by user
-
-    Read Document owned by user
-
-    Update Document owned by user
-
-    Delete Document owned by user
-
-    List of documents owned by user
-"""
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def get_update_delete_document(request, slug):
     user_id = request.user['user_id']
