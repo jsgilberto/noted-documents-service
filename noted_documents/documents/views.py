@@ -19,6 +19,34 @@ from .models import Document
 
     List of documents owned by user
 """
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+def get_update_delete_document(request, slug):
+    user_id = request.user['user_id']
+
+    # search for document by slug
+    try:
+        document = Document.objects.get(user_id=user_id, slug=slug)
+    except Document.DoesNotExist:
+        raise exceptions.NotFound()
+    serializer = DocumentSerializer(document)
+
+    # Read
+    if request.method == 'GET':
+        serializer = DocumentSerializer(document)
+        return Response(serializer.data)
+
+    # Update
+    elif request.method in ['PUT', 'PATCH']:
+        request.data['user_id'] = user_id
+        serializer = DocumentSerializer(document, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            instance = serializer.save()
+        return Response(serializer.data)
+
+    # Delete
+    elif request.method == 'DELETE':
+        document.delete()
+        return Response({})
 
 
 @api_view(['GET'])
