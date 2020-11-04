@@ -4,7 +4,7 @@ services:
   documents_db:
     image: postgres:11.6
     env_file: 
-      - db.env
+      - env/db.env
     networks:
       - noted-resource-manager_default
   documents:
@@ -12,7 +12,8 @@ services:
     environment:
       - DJANGO_SECRET_KEY=local
     env_file: 
-      - db.env
+      - env/db.env
+      - env/services.env
     image: documents
     build: ./
     command: >

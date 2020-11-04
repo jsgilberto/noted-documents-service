@@ -29,6 +29,10 @@ class Document(TimeStampMixin):
             title_slugified = slugify(self.title)
             unique_id = uuid.uuid4()
             # Create a slug using uuid4
-            self.slug = "{title_slugified}-{unique_id}"
+            self.slug = "{title_slugified}-{unique_id}".format(
+                title_slugified=title_slugified,
+                unique_id=unique_id
+            )
+        
         return super().save(*args, **kwargs)
     
