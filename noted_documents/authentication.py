@@ -5,6 +5,17 @@ import requests
 import os
 
 
+class TempUser:
+    """ Temporal User used to pass
+        authentication (IsAuthenticated)
+    """
+    def __init__(self, data):
+        self.id = data.get('user_id', None)
+    
+    def is_authenticated(self):
+        return True
+
+
 verify_token_path = '/api/token/verify/'
 users_service_hostname = os.getenv('USERS_SERVICE_URL')
 verify_token_url = users_service_hostname + verify_token_path
@@ -12,6 +23,7 @@ verify_token_url = users_service_hostname + verify_token_path
 
 class UsersServiceAuthentication(authentication.BaseAuthentication):
     def authenticate(self, request):
+        # django adds "HTTP_" to headers
         jwt = request.META.get("HTTP_AUTHORIZATION")
         if not jwt:
             return None
@@ -20,7 +32,8 @@ class UsersServiceAuthentication(authentication.BaseAuthentication):
             body = { "token": jwt }
             res = requests.post(verify_token_url, json=body)
             res.raise_for_status()
-            user = res.json()
+            data = res.json()
+            user = TempUser(data)
         except requests.exceptions.HTTPError as err:
             raise exceptions.AuthenticationFailed('JWT not valid')
         except:

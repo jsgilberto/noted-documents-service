@@ -9,7 +9,12 @@ from .models import Document
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 def get_update_delete_document(request, slug):
-    user_id = request.user['user_id']
+    """ Read-Update-Delete operations on single documents
+
+        Depending on the method used, this view will execute
+        a different task
+    """
+    user_id = request.user.id
 
     # search for document by slug
     try:
@@ -42,7 +47,7 @@ def list_or_create_document(request):
     """ Get a list of existing documents (owned by user)
         or Create a new document
     """
-    user_id = request.user['user_id']
+    user_id = request.user.id
     request.data['user_id'] = user_id
 
     # Return a list of Documents owned by the user making the request
