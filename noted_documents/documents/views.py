@@ -30,12 +30,12 @@ def get_update_delete_document(request, slug):
         raise exceptions.NotFound()
     serializer = DocumentSerializer(document)
 
-    # Read
+    # Read document
     if request.method == 'GET':
         serializer = DocumentSerializer(document)
         return Response(serializer.data)
 
-    # Update
+    # Update document
     elif request.method in ['PUT', 'PATCH']:
         request.data['user_id'] = user_id
         serializer = DocumentSerializer(document, data=request.data, partial=True)
@@ -43,57 +43,10 @@ def get_update_delete_document(request, slug):
             instance = serializer.save()
         return Response(serializer.data)
 
-    # Delete
+    # Delete document
     elif request.method == 'DELETE':
         document.delete()
         return Response({})
-
-
-@api_view(['GET'])
-def get_document(request, slug):
-    """ Get a specific document (owned by user)
-    """
-    user_id = request.user['user_id']
-
-    try:
-        document = Document.objects.get(user_id=user_id, slug=slug)
-    except Document.DoesNotExist:
-        raise exceptions.NotFound()
-    serializer = DocumentSerializer(document)
-    return Response(serializer.data)
-
-
-@api_view(['PUT', 'PATCH'])
-def update_document(request, slug):
-    """ Update an existing document (owned by user)
-    """
-    user_id = request.user['user_id']
-    request.data['user_id'] = user_id
-
-    try:
-        document = Document.objects.get(user_id=user_id, slug=slug)
-    except Document.DoesNotExist:
-        raise exceptions.NotFound()
-
-    serializer = DocumentSerializer(document, data=request.data, partial=True)
-    if serializer.is_valid(raise_exception=True):
-        instance = serializer.save()
-    return Response(serializer.data)
-
-
-@api_view(['DELETE'])
-def delete_document(request, slug):
-    """ Delete an existing document (owned by user)
-    """
-    user_id = request.user['user_id']
-
-    try:
-        document = Document.objects.get(user_id=user_id, slug=slug)
-    except Document.DoesNotExist:
-        raise exceptions.NotFound()
-
-    document.delete()
-    return Response({})
 
 
 @api_view(['GET', 'POST'])
