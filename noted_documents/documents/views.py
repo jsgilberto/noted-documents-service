@@ -2,6 +2,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import viewsets, mixins
+from rest_framework import exceptions
 from .serializers import DocumentSerializer
 from .models import Document
 
@@ -24,22 +25,47 @@ from .models import Document
 def get_document(request, slug):
     """ Get a specific document (owned by user)
     """
-    # print(request.virtual_user_id)
-    return Response({"action": "get a specific document, {slug}".format(slug=slug)})
+    user_id = request.user['user_id']
+
+    try:
+        document = Document.objects.get(user_id=user_id, slug=slug)
+    except Document.DoesNotExist:
+        raise exceptions.NotFound()
+    serializer = DocumentSerializer(document)
+    return Response(serializer.data)
 
 
 @api_view(['PUT', 'PATCH'])
 def update_document(request, slug):
     """ Update an existing document (owned by user)
     """
-    return Response({"action": "update an existing document, {slug}".format(slug=slug)})
+    user_id = request.user['user_id']
+    request.data['user_id'] = user_id
+
+    try:
+        document = Document.objects.get(user_id=user_id, slug=slug)
+    except Document.DoesNotExist:
+        raise exceptions.NotFound()
+
+    serializer = DocumentSerializer(document, data=request.data, partial=True)
+    if serializer.is_valid(raise_exception=True):
+        instance = serializer.save()
+    return Response(serializer.data)
 
 
 @api_view(['DELETE'])
 def delete_document(request, slug):
     """ Delete an existing document (owned by user)
     """
-    return Response({"action": "delete an existing document, {slug}".format(slug=slug)})
+    user_id = request.user['user_id']
+
+    try:
+        document = Document.objects.get(user_id=user_id, slug=slug)
+    except Document.DoesNotExist:
+        raise exceptions.NotFound()
+
+    document.delete()
+    return Response({})
 
 
 @api_view(['GET', 'POST'])
@@ -52,14 +78,18 @@ def list_or_create_document(request):
 
     # Return a list of Documents owned by the user making the request
     if request.method == "GET":
+        # TODO: add pagination
         queryset = Document.objects.filter(user_id=user_id)
         serializer = DocumentSerializer(queryset, many=True)
         return Response(serializer.data)
 
     # Create a new document
     elif request.method == "POST":
+        instance = None
         serializer = DocumentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.create(serializer.validated_data)
+            # instance = serializer.create(serializer.validated_data)
+            instance = serializer.save()
         
-        return Response({"action": "Create a new document"})
+        print(instance)
+        return Response(serializer.data)

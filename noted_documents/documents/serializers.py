@@ -10,3 +10,4 @@ class DocumentSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at')
         read_only_fields = ('id', 'created_at', 'updated_at',
             'slug')
+        extra_kwargs = {'user_id': {'write_only': True}}
